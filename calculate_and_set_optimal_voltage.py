@@ -84,7 +84,7 @@ def on_message(client, userdata, msg):
 
     msg_value = str(m_decode)
     topic_key = topic_keys[msg.topic]
-    latest_values[topic_key] = int(msg_value)
+    latest_values[topic_key] = float(msg_value)
     latest_calculated_amp = calculate_optimal_ampere(latest_values["total_solar_watt"], latest_values["soc"])
     latest_values[last_calculated_key] = latest_calculated_amp
     latest_tsw = latest_values["total_solar_watt"]
@@ -102,6 +102,13 @@ def on_message(client, userdata, msg):
 
 
 def calculate_optimal_ampere(total_solar_watt, soc):
+    if total_solar_watt <= 100:
+        print("Switch Off-- Total solar watt is less than 100")
+        return
+    elif total_solar_watt > 800:
+        print("Total solar watt value cannot be greater than the max watt of solar inverter")
+        return
+
     solar_power_mode = tsw_to_solar_power_mode_matrix[total_solar_watt]
     charge_pace = soc_to_charging_pace_matrix[solar_power_mode][soc]
     optimal_amp = charging_pace_to_optimal_amp_matrix[charge_pace]
